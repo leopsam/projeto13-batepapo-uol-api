@@ -7,8 +7,7 @@ import dayjs from 'dayjs'
 
 dotenv.config()
 const app = express()
-//const dayjs = require('dayjs')
-//dayjs().format()
+const data = dayjs().format("HH:MM:ss")
 app.use(cors());
 app.use(express.json())
 
@@ -46,6 +45,7 @@ app.post('/participants', async (req, res) => {
         if (resp) return res.status(409).send("nome já está sendo utilizado")
 
         await db.collection("participants").insertOne({ name: participants.name, lastStatus: Date.now()});
+        await db.collection("messages").insertOne({ from: participants.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: data })
 
         return res.sendStatus(201);
 
@@ -77,7 +77,7 @@ app.post('/messages', async (req, res) => {
 
 	const messages = req.body
     const { user } = req.headers
-    const data = dayjs().format("HH:MM:ss")
+    
 
     const messagesSchema = joi.object({
         to: joi.string().required(),
