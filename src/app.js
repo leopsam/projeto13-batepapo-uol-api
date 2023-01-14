@@ -3,9 +3,12 @@ import cors from 'cors'
 import { MongoClient, ObjectId } from "mongodb"
 import dotenv from "dotenv"
 import joi from 'joi'
+import dayjs from 'dayjs'
 
 dotenv.config()
 const app = express()
+//const dayjs = require('dayjs')
+//dayjs().format()
 app.use(cors());
 app.use(express.json())
 
@@ -68,6 +71,38 @@ app.get("/participants", (req, res) => {
         return res.status(500).send(err.message);
     }*/
   });
+  //-------------------POST /messages------------------------
+app.post('/messages', async (req, res) => {
+    console.log("rodou post messages")
+
+	const messages = req.body
+    const { user } = req.headers
+    const data = dayjs().format("HH:MM:ss")
+
+    const messagesSchema = joi.object({
+        to: joi.string().required(),
+        text: joi.string().required(),
+        type: joi.string().required()
+      });
+
+    const validation = messagesSchema.validate(messages, { abortEarly: false })
+
+    if (validation.error) {
+        const errors = validation.error.details.map((detail) => detail.message)
+        return res.status(422).send(errors)
+    }
+
+	try {
+        const respUser = await db.collection("participants").findOne({ name: user }); // Erro de usuario não encontrado
+        if (!respUser) return res.status(422).send("Usuario não encontrado")
+
+        await db.collection("messages").insertOne({ to: messages.to, from: user, text: messages.text, type: messages.type, time: data})
+        return res.sendStatus(201)
+
+    } catch (err) {
+        return res.status(500).send(err.message)
+    }
+})
 //-------------------porta do servidor-------------------------
 app.listen(5000, () => {
 	console.log("Servidor rodando!")
