@@ -108,7 +108,7 @@ app.get("/messages", (req, res) => {
 
     const limit = parseInt(req.query.limit)
     const { user } = req.headers
-    console.log(limit)
+    //console.log(limit)
     
     db.collection("messages").find().toArray()
 
@@ -118,8 +118,11 @@ app.get("/messages", (req, res) => {
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
 
+            //console.log(typeof limit)   
+            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.status(422).send("erro limit")
+
             if (!limit) return res.send(ArrayMsg)
-            
+
             const ArrayMsgReverse = ArrayMsg.reverse().slice(0, limit)
             return res.send(ArrayMsgReverse)
         })
