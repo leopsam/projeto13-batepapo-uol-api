@@ -90,6 +90,11 @@ app.post('/messages', async (req, res) => {
         const errors = validation.error.details.map((detail) => detail.message)
         return res.status(422).send(errors)
     }
+    console.log(messages.type != "message")
+    console.log(typeof messages.type)
+    if ((messages.type != "message") && (messages.type != "private_message")) {
+        return res.status(422).send("Tipo de msg fora do padrão")
+    }
 
 	try {
         const respUser = await db.collection("participants").findOne({ name: user }); // Erro de usuario não encontrado
