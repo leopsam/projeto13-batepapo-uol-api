@@ -149,6 +149,7 @@ app.get("/messages", (req, res) => {
 //-------------------POST /participants------------------------
 app.post('/status', async (req, res) => {
     console.log("rodou post status")
+    lastStatusAtual = Date.now()
 
 	//const { lastStatus } = req.body;
     const { user } = req.headers
