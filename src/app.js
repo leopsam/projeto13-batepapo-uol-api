@@ -12,7 +12,6 @@ let lastStatusAtual = Date.now()
 app.use(cors());
 app.use(express.json())
 let usuarioAtual
-
 const mongoCilent = new MongoClient(process.env.DATABASE_URL)
 let db
 
@@ -116,23 +115,30 @@ app.post('/messages', async (req, res) => {
 app.get("/messages", (req, res) => { 
     console.log("rodou get messages")
 
-    const limit = parseInt(req.query.limit)
+    const { limit } = req.query
     const { user } = req.headers
     usuarioAtual = user
     console.log(isNaN(limit))
+    console.log(typeof limit)
+    console.log(limit==undefined)
+    console.log(limit)
+
+    
     
     db.collection("messages").find().toArray()
 
         .then(dados => {            
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
-              
-            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.sendStatus(422)
 
-            if (!limit) return res.send(ArrayMsg) 
+            if (limit == undefined) return res.send(ArrayMsg) 
+              
+            if (Number(limit) === 0 || isNaN(limit) || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
+
+            
 
             console.log(limit)
-            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, limit)
+            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, Number(limit))
             return res.send(ArrayMsgReverse)
         })
 
