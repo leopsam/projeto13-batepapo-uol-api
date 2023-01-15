@@ -70,8 +70,8 @@ app.get("/participants", (req, res) => {
     } catch (err) {
         return res.status(500).send(err.message);
     }*/
-  });
-  //-------------------POST /messages------------------------
+});
+//-------------------POST /messages----------------------------
 app.post('/messages', async (req, res) => {
     console.log("rodou post messages")
 
@@ -102,7 +102,7 @@ app.post('/messages', async (req, res) => {
         return res.status(500).send(err.message)
     }
 })
-//-------------------GET /messages-------------------------
+//-------------------GET /messages-----------------------------
 app.get("/messages", (req, res) => { 
     console.log("rodou get messages")
 
@@ -137,8 +137,8 @@ app.get("/messages", (req, res) => {
     } catch (err) {
         return res.status(500).send(err.message);
     }*/
-  });
-  //-------------------POST /participants------------------------
+});
+//-------------------POST /participants------------------------
 app.post('/status', async (req, res) => {
     console.log("rodou post status")
 
@@ -156,6 +156,7 @@ app.post('/status', async (req, res) => {
 
         console.log(result);
         //1673744606866
+        //1673744706424
 
         return res.sendStatus(200);
 
@@ -168,6 +169,24 @@ app.post('/status', async (req, res) => {
         return res.status(500).send(err.message);
     }
 })
+//--------Remoção automática de usuários inativos--------------
+const stopInterval = setInterval (() => {
+        console.log("----Remoção automática----")
+        //const lastStatusAtual = Date.now()
+           // const { user } = req.headers
+        db.collection("participants").find().toArray()
+            .then(dados => {
+                dados.filter(user => {
+                    //console.log(user.name)
+                    if(user.lastStatus > 10000){
+                        console.log(user.name)
+                            db.collection("messages").insertOne({ from: user.name, to: 'Todos', text: 'sai na sala...', type: 'status', time: data })
+                            db.collection("participants").deleteOne( user )
+                    }
+                })
+            })        
+        
+}, 15000)
 //-------------------porta do servidor-------------------------
 app.listen(5000, () => {
 	console.log("Servidor rodando!")
