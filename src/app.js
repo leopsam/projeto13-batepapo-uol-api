@@ -138,6 +138,36 @@ app.get("/messages", (req, res) => {
         return res.status(500).send(err.message);
     }*/
   });
+  //-------------------POST /participants------------------------
+app.post('/status', async (req, res) => {
+    console.log("rodou post status")
+
+	//const { lastStatus } = req.body;
+    const { user } = req.headers
+    const lastStatus = Date.now()
+
+	try {
+        const respUser = await db.collection("participants").findOne({ name: user }); // Erro
+        //console.log(respUser)
+
+        if (!respUser) return res.sendStatus(404)
+
+        const result = await db.collection("participants").updateOne({ name: user},{ $set: { lastStatus }});
+
+        console.log(result);
+        //1673744606866
+
+        return res.sendStatus(200);
+
+        //await db.collection("participants").insertOne({ name: participants.name, lastStatus: Date.now()});
+        //await db.collection("messages").insertOne({ from: participants.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: data })
+
+        //return res.sendStatus(201);
+
+    } catch (err) {
+        return res.status(500).send(err.message);
+    }
+})
 //-------------------porta do servidor-------------------------
 app.listen(5000, () => {
 	console.log("Servidor rodando!")
