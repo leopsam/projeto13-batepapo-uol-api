@@ -7,13 +7,17 @@ import dayjs from 'dayjs'
 
 dotenv.config()
 const app = express()
-let data = dayjs().format("HH:MM:ss")
-let lastStatusAtual = Date.now()
 app.use(cors());
 app.use(express.json())
+
+
+let data = dayjs().format("HH:MM:ss")
+let lastStatusAtual = Date.now()
 let usuarioAtual
+
 const mongoCilent = new MongoClient(process.env.DATABASE_URL)
 let db
+
 
 //-----------------conexao banco mongo-----------------------
 try {
@@ -64,14 +68,7 @@ app.get("/participants", (req, res) => {
     })
     .catch(() => {
       res.status(500)
-    })    
-    /*try {
-        console.log("rodou get participants")   
-        const participants = db.collection("participants").find({}).toArray()
-        return res.send(participants);
-    } catch (err) {
-        return res.status(500).send(err.message);
-    }*/
+    })
 });
 //-------------------POST /messages----------------------------
 app.post('/messages', async (req, res) => {
@@ -118,15 +115,8 @@ app.get("/messages", (req, res) => {
     const { limit } = req.query
     const { user } = req.headers
     usuarioAtual = user
-    console.log(isNaN(limit))
-    console.log(typeof limit)
-    console.log(limit==undefined)
-    console.log(limit)
-
-    
     
     db.collection("messages").find().toArray()
-
         .then(dados => {            
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
@@ -135,9 +125,6 @@ app.get("/messages", (req, res) => {
               
             if (Number(limit) === 0 || isNaN(limit) || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
 
-            
-
-            console.log(limit)
             const ArrayMsgReverse = ArrayMsg.reverse().slice(0, Number(limit))
             return res.send(ArrayMsgReverse)
         })
@@ -145,22 +132,13 @@ app.get("/messages", (req, res) => {
         .catch(() => {
             res.status(500)
         })    
-    /*try {
-        console.log("rodou get participants")   
-        const participants = db.collection("participants").find({}).toArray()
-        return res.send(participants);
-    } catch (err) {
-        return res.status(500).send(err.message);
-    }*/
 });
 //-------------------POST /participants------------------------
 app.post('/status', async (req, res) => {
     console.log("rodou post status")
-    lastStatusAtual = Date.now()
 
-	//const { lastStatus } = req.body;
     const { user } = req.headers
-    
+    lastStatusAtual = Date.now()
     usuarioAtual = user    
 
 	try {
@@ -172,21 +150,12 @@ app.post('/status', async (req, res) => {
         const result = await db.collection("participants").updateOne({ name: user},{ $set: { lastStatus: lastStatusAtual }});
 
         console.log(result);
-        //1673744606866
-        //1673744706424
 
         return res.sendStatus(200);
-
-        //await db.collection("participants").insertOne({ name: participants.name, lastStatus: Date.now()});
-        //await db.collection("messages").insertOne({ from: participants.name, to: 'Todos', text: 'entra na sala...', type: 'status', time: data })
-
-        //return res.sendStatus(201);
 
     } catch (err) {
         return res.status(500).send(err.message);
     }
-
-    
 })
 //--------Remoção automática de usuários inativos--------------
 const stopInterval = setInterval (() => {
@@ -194,18 +163,10 @@ const stopInterval = setInterval (() => {
     lastStatusAtual = Date.now()
     data = dayjs().format("HH:MM:ss")
     console.log((lastStatusAtual ) + " - lastStatus atualizado")
-    //const lastStatusAtual = Date.now()
-       // const { user } = req.headers
+    
     db.collection("participants").find().toArray()
         .then(dados => {
             dados.filter(participant => {
-                //console.log(usuarioAtual + " - esta ativo")
-                //console.log(usuarioAtual != participant.name)
-                //if(usuarioAtual != participant.name){
-                //console.log(usuarioAtual != participant.name)
-                console.log(participant.name)
-                //console.log(usuarioAtual)
-
                     if((lastStatusAtual - participant.lastStatus) > 10000){
                         console.log(participant.name + " - usuario removido")
                         console.log((lastStatusAtual - participant.lastStatus) + " - usuario lastStatus")
