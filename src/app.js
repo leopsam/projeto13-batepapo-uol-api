@@ -111,9 +111,9 @@ app.post('/messages', async (req, res) => {
 app.get("/messages", (req, res) => { 
     console.log("rodou get messages")
 
-    const { limit } = req.query
+    const limit = parseInt(req.query.limit)
     const { user } = req.headers
-    console.log(Number(limit))
+    console.log(limit)
     
     db.collection("messages").find().toArray()
 
@@ -124,12 +124,12 @@ app.get("/messages", (req, res) => {
             const ArrayMsg = [...filterMsg]
 
               
-            if (Number(limit) === 0 || isNaN(limit) || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
+            if (limit === 0 || isNaN(limit) || Math.sign(limit) === -1) return res.sendStatus(422)
 
-            if (!Number(limit)) return res.send(ArrayMsg) 
+            if (!limit) return res.send(ArrayMsg) 
 
             console.log(limit)
-            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, Number(limit))
+            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, limit)
             return res.send(ArrayMsgReverse)
         })
 
