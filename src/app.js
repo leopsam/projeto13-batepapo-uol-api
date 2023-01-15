@@ -161,7 +161,7 @@ app.post('/status', async (req, res) => {
 
         if (!respUser) return res.sendStatus(404)
 
-        const result = await db.collection("participants").updateOne({ name: user},{ $set: { lastStatusAtual }});
+        const result = await db.collection("participants").updateOne({ name: user},{ $set: { lastStatus: lastStatusAtual }});
 
         console.log(result);
         //1673744606866
@@ -194,7 +194,7 @@ const stopInterval = setInterval (() => {
                 //console.log(usuarioAtual != participant.name)
                 //if(usuarioAtual != participant.name){
                 //console.log(usuarioAtual != participant.name)
-                //console.log(participant.name)
+                console.log(participant.name)
                 //console.log(usuarioAtual)
 
                     if((lastStatusAtual - participant.lastStatus) > 10000){
@@ -203,7 +203,7 @@ const stopInterval = setInterval (() => {
                         db.collection("messages").insertOne({ from: participant.name, to: 'Todos', text: 'sai na sala...', type: 'status', time: data })
                         db.collection("participants").deleteOne( participant )
                     }else{
-                        db.collection("participants").updateOne({ name: participant.name},{ $set: { lastStatusAtual }});
+                        db.collection("participants").updateOne({ name: participant.name},{ $set: { lastStatus: lastStatusAtual }});
                         console.log(participant.name + " - usuario ativo")
                         console.log((participant.lastStatus - lastStatusAtual ) + " - usuario lastStatus")
                     }
