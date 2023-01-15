@@ -119,12 +119,12 @@ app.get("/messages", (req, res) => {
 
         .then(dados => {
 
-            //console.log(dados.filter(msg => (msg.to == "João")))
+            console.log(isNaN(limit))
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
 
               
-            if (Number(limit) === 0 || typeof Number(limit) == "string" || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
+            if (Number(limit) === 0 || isNaN(limit) || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
 
             if (!Number(limit)) return res.send(ArrayMsg) 
 
