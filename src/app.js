@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 
 dotenv.config()
 const app = express()
-const data = dayjs().format("HH:MM:ss")
+let data = dayjs().format("HH:MM:ss")
 let lastStatusAtual = Date.now()
 app.use(cors());
 app.use(express.json())
@@ -81,6 +81,7 @@ app.post('/messages', async (req, res) => {
 	const messages = req.body
     const { user } = req.headers
     usuarioAtual = user
+    data = dayjs().format("HH:MM:ss")
    
     const messagesSchema = joi.object({
         to: joi.string().required(),
@@ -104,7 +105,7 @@ app.post('/messages', async (req, res) => {
         const respUser = await db.collection("participants").findOne({ name: user }); // Erro de usuario não encontrado
         if (!respUser) return res.status(422).send("Usuario não encontrado")
 
-        await db.collection("messages").insertOne({ to: messages.to, from: user, text: messages.text, type: messages.type, time: data})
+        await db.collection("messages").insertOne({ from: user, to: messages.to, text: messages.text, type: messages.type, time: data})
         return res.sendStatus(201)
 
     } catch (err) {
@@ -185,6 +186,7 @@ app.post('/status', async (req, res) => {
 const stopInterval = setInterval (() => {
     console.log("----Remoção automática----")
     lastStatusAtual = Date.now()
+    data = dayjs().format("HH:MM:ss")
     console.log((lastStatusAtual ) + " - lastStatus atualizado")
     //const lastStatusAtual = Date.now()
        // const { user } = req.headers
@@ -201,7 +203,7 @@ const stopInterval = setInterval (() => {
                     if((lastStatusAtual - participant.lastStatus) > 10000){
                         console.log(participant.name + " - usuario removido")
                         console.log((lastStatusAtual - participant.lastStatus) + " - usuario lastStatus")
-                        db.collection("messages").insertOne({ from: participant.name, to: 'Todos', text: 'sai na sala...', type: 'status', time: data })
+                        db.collection("messages").insertOne({ from: participant.name, to: 'Todos', text: 'sai da sala...', type: 'status', time: data })
                         db.collection("participants").deleteOne( participant )
                     }else{
                         db.collection("participants").updateOne({ name: participant.name},{ $set: { lastStatus: lastStatusAtual }});
