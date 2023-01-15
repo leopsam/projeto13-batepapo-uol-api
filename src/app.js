@@ -149,9 +149,32 @@ app.post('/status', async (req, res) => {
     const { user } = req.headers
     const lastStatus = Date.now()
 
+    const stopInterval = setInterval (() => {
+        console.log("----Remoção automática----")
+        //const lastStatusAtual = Date.now()
+           // const { user } = req.headers
+        db.collection("participants").find().toArray()
+            .then(dados => {
+                dados.filter(participant => {
+                    //console.log(user.name)
+                    if(user !== participant.name){
+                    //console.log(participant.name)
+                    //console.log(user)
+
+                        if(participant.lastStatus > 10000){
+                            console.log(participant.name + " - usurio removido")
+                                db.collection("messages").insertOne({ from: participant.name, to: 'Todos', text: 'sai na sala...', type: 'status', time: data })
+                                db.collection("participants").deleteOne( participant )
+                        }
+                    }
+                })
+            })        
+        
+}, 15000)
+
 	try {
         const respUser = await db.collection("participants").findOne({ name: user }); // Erro
-        //console.log(respUser)
+        console.log(respUser + " - retorno nome existente")
 
         if (!respUser) return res.sendStatus(404)
 
@@ -171,25 +194,11 @@ app.post('/status', async (req, res) => {
     } catch (err) {
         return res.status(500).send(err.message);
     }
+
+    
 })
 //--------Remoção automática de usuários inativos--------------
-const stopInterval = setInterval (() => {
-        console.log("----Remoção automática----")
-        //const lastStatusAtual = Date.now()
-           // const { user } = req.headers
-        db.collection("participants").find().toArray()
-            .then(dados => {
-                dados.filter(user => {
-                    //console.log(user.name)
-                    if(user.lastStatus > 10000){
-                        console.log(user.name)
-                            db.collection("messages").insertOne({ from: user.name, to: 'Todos', text: 'sai na sala...', type: 'status', time: data })
-                            db.collection("participants").deleteOne( user )
-                    }
-                })
-            })        
-        
-}, 15000)
+
 //-------------------porta do servidor-------------------------
 app.listen(5000, () => {
 	console.log("Servidor rodando!")
