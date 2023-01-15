@@ -106,7 +106,7 @@ app.post('/messages', async (req, res) => {
 app.get("/messages", (req, res) => { 
     console.log("rodou get messages")
 
-    const limit = parseInt(req.query.limit)
+    const { limit } = req.query
     const { user } = req.headers
     //console.log(limit)
     
@@ -118,11 +118,12 @@ app.get("/messages", (req, res) => {
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
 
-            //console.log(typeof limit)   
-            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.status(422).send("erro limit")
+              
+            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.sendStatus(422)
 
-            if (!limit) return res.send(ArrayMsg)
+            if (!limit) return res.send(ArrayMsg) 
 
+            console.log(limit)
             const ArrayMsgReverse = ArrayMsg.reverse().slice(0, limit)
             return res.send(ArrayMsgReverse)
         })
