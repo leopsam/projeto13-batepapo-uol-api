@@ -113,18 +113,15 @@ app.get("/messages", (req, res) => {
 
     const limit = parseInt(req.query.limit)
     const { user } = req.headers
-    console.log(limit)
+    console.log(isNaN(limit))
     
     db.collection("messages").find().toArray()
 
-        .then(dados => {
-
-            console.log(isNaN(limit))
+        .then(dados => {            
             const filterMsg = dados.filter(msg => (msg.to == user) || (msg.to == "Todos") || (msg.from == user))
             const ArrayMsg = [...filterMsg]
-
               
-            if (limit === 0 || isNaN(limit) || Math.sign(limit) === -1) return res.sendStatus(422)
+            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.sendStatus(422)
 
             if (!limit) return res.send(ArrayMsg) 
 
