@@ -113,7 +113,7 @@ app.get("/messages", (req, res) => {
 
     const { limit } = req.query
     const { user } = req.headers
-    //console.log(limit)
+    console.log(Number(limit))
     
     db.collection("messages").find().toArray()
 
@@ -124,12 +124,12 @@ app.get("/messages", (req, res) => {
             const ArrayMsg = [...filterMsg]
 
               
-            if (limit === 0 || typeof limit == "string" || Math.sign(limit) === -1) return res.sendStatus(422)
+            if (Number(limit) === 0 || typeof Number(limit) == "string" || Math.sign(Number(limit)) === -1) return res.sendStatus(422)
 
-            if (!limit) return res.send(ArrayMsg) 
+            if (!Number(limit)) return res.send(ArrayMsg) 
 
             console.log(limit)
-            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, limit)
+            const ArrayMsgReverse = ArrayMsg.reverse().slice(0, Number(limit))
             return res.send(ArrayMsgReverse)
         })
 
